@@ -3,6 +3,7 @@
  * GET home page.
  */
 
+/*
 var posts =  posts || [{
 	index: 0,
 	text: "Sample 1",
@@ -14,15 +15,20 @@ var posts =  posts || [{
 	user: "Doncho Minkov",
 	date: "04-03-2014 17:40:00"
 }];
+*/
+
+var posts = posts || [],
+	maxPostIndex = 10000000,
+	maxPostsCount = 10000;
 
 function checkPostsCount(){
-	if(posts.length >= 2){
-		posts = posts.slice(posts.length - 2);
+	if(posts.length >= maxPostsCount){
+		posts = posts.slice(posts.length - maxPostsCount);
 	}
 }
 
 function checkPostsIndices(){
-		if(posts[posts.length-1].index >= 3){
+		if(posts[posts.length-1].index >= maxPostIndex){
 		for(var i = 0; i < posts.length; i+=1){
 			posts[i].index = i;
 		}
