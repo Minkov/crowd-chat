@@ -28,9 +28,11 @@ function checkPostsCount(){
 }
 
 function checkPostsIndices(){
+	if(posts.length){
 		if(posts[posts.length-1].index >= maxPostIndex){
-		for(var i = 0; i < posts.length; i+=1){
-			posts[i].index = i;
+			for(var i = 0; i < posts.length; i+=1){
+				posts[i].index = i;
+			}
 		}
 	}
 }
