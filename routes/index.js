@@ -17,7 +17,7 @@ var posts =  posts || [{
 }];
 */
 
-var posts = posts || [],
+var posts = [],
 	maxPostIndex = 10000000,
 	maxPostsCount = 10000;
 
