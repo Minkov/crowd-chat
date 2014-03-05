@@ -20,15 +20,24 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+/*
   app.use(function(req, res, next){
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
   });
+*/
 });
 
 app.configure('development', function(){
   app.use(express.errorHandler());
+});
+
+app.all('*', function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
 });
 
 app.get('/posts', routes.getPosts);
