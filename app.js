@@ -9,6 +9,18 @@ var express = require('express'),
 
 var app = express();
 
+var enableCors = function(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  if('OPTIONS' === req.method){
+    res.send(200);
+  }
+  else{
+    next();
+  }
+};
+
 app.configure(function() {
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
@@ -20,24 +32,24 @@ app.configure(function() {
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 
-  app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-  });
-
+  app.use(enableCors);
+  // app.use(function(req, res, next) {
+  //   res.header("Access-Control-Allow-Origin", "*");
+  //   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  //   next();
+  // });
 });
 
 app.configure('development', function() {
   app.use(express.errorHandler());
 });
 
-app.all('*', function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// app.all('*', function(req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type');
+//   next();
+// });
 
 app.get('/posts', routes.getPosts);
 app.post('/posts', routes.addPost);
