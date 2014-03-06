@@ -1,30 +1,13 @@
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/crowd-chat');
+var posts = [];
 
-var MessageSchema = new mongoose.Schema({
-	by: String,
-	text: String,
-	sentDate: Date
-});
-
-mongoose.model('Message', MessageSchema);
-
-var Message = mongoose.model('Message');
-
-function checkPostsCount() {
-	if (posts.length >= maxPostsCount) {
-		posts = posts.slice(posts.length - maxPostsCount);
+function generateRandomId(id){
+	var parts = id.toString().split(''),
+			idLength = 30,
+			idChars = '1234567890qwertyuiopasdfghjklzxcvbnm';
+	while(parts.length < idLength){
+		parts.push(idChars[Math.floor(Math.random()*idChars.length)]);
 	}
-}
-
-function checkPostsIndices() {
-	if (posts.length) {
-		if (posts[posts.length - 1].index >= maxPostIndex) {
-			for (var i = 0; i < posts.length; i += 1) {
-				posts[i].index = i;
-			}
-		}
-	}
+	return parts.join('');
 }
 
 if (!String.prototype.htmlEscape) {
@@ -39,15 +22,7 @@ if (!String.prototype.htmlEscape) {
 }
 
 exports.getPosts = function(req, res) {
-	Message.find().exec()
-		.then(function(messages) {
-			console.log(messages);
-			if (messages && messages.length) {
-				res.json(messages);
-			} else {
-				res.json([]);
-			}
-		});
+	res.json(posts);
 };
 
 exports.getPostsSince = function(req, res) {
@@ -58,28 +33,14 @@ exports.getPostsSince = function(req, res) {
 		};
 		return res.json(errResponse);
 	}
-	var date;
-	Message.find({
-		'_id': req.params.id
-	}).exec()
-		.then(function(messages) {
-			console.log('Here!');
-			if (!messages.length) {
-				res.json([]);
-			}
-			date = messages[0].get('sentDate');
-			console.log(date);
-			return Message.find().exec();
-		})
-		.then(function(messages) {
-			var laterMessages = [];
-			for (var i = 0; i < messages.length; i += 1) {
-				if (messages[i].get('sentDate') > date) {
-					laterMessages.push(messages[i]);
-				}
-			}
-			res.json(laterMessages);
-		});
+	var id = req.params.id,
+		index;
+	for(var i = 0; i < posts.length-1; i+=1){
+		if(posts[i].id === id){
+			return res.json(posts.slice(i+1));
+		}
+	}
+	return res.json([]);
 };
 
 exports.addPost = function(req, res) {
@@ -90,26 +51,10 @@ exports.addPost = function(req, res) {
 		};
 		return res.json(errResponse);
 	}
-	var message = new Message({
-		by: req.body.user.htmlEscape(),
+	posts.push({
+		id: generateRandomId(posts.length),
 		text: req.body.text.htmlEscape(),
-		sentDate: new Date()
+		by: req.body.user.htmlEscape()
 	});
-	message.save(function(err, msg) {
-		console.log(arguments);
-		if (err) {
-			res.status(400);
-			return res.json(err);
-		}
-		res.json(msg);
-	});
-
-	// var post = {
-	// index: posts.length,
-	// username: req.body.user.htmlEscape(),
-	// text: req.body.text.htmlEscape()
-	// };
-
-	// posts.push(post);
-	// res.json(true);
+	res.json(true);
 };
